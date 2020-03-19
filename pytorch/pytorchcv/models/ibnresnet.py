@@ -235,6 +235,7 @@ class IBNResNet(nn.Module):
                  init_block_channels,
                  in_channels=3,
                  in_size=(224, 224),
+                 last_stride=2,
                  num_classes=1000):
         super(IBNResNet, self).__init__()
         self.in_size = in_size
@@ -248,7 +249,10 @@ class IBNResNet(nn.Module):
         for i, channels_per_stage in enumerate(channels):
             stage = nn.Sequential()
             for j, out_channels in enumerate(channels_per_stage):
-                stride = 2 if (j == 0) and (i != 0) else 1
+                if last_stride == 2:
+                    stride = 2 if (j == 0) and (i != 0) else 1
+                else:
+                    stride = 2 if (j == 0) and (i not in (0, 3)) else 1
                 conv1_ibn = (out_channels < 2048)
                 stage.add_module("unit{}".format(j + 1), IBNResUnit(
                     in_channels=in_channels,
